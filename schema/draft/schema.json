@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ifay.org/schema/draft/skill-sharing-protocol.json",
+  "title": "SkillDescriptor",
+  "description": "Skill Sharing Protocol - Skill Descriptor Schema (Draft)",
+  "type": "object",
+  "properties": {
+    "protocol": { "$ref": "#/$defs/ProtocolVersion" },
+    "id": { "type": "string", "description": "技能唯一标识符" },
+    "name": { "type": "string", "description": "技能名称" },
+    "version": { "type": "string", "description": "技能版本（SemVer）" },
+    "capability_type": { "$ref": "#/$defs/CapabilityType" },
+    "description": { "type": "string", "description": "技能描述" },
+    "provider": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "url": { "type": "string" },
+        "contact": { "type": "string" }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "endpoint": { "$ref": "#/$defs/InvocationEndpoint" },
+    "inputs": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ParameterDefinition" }
+    },
+    "output": { "$ref": "#/$defs/OutputDefinition" },
+    "auth": { "$ref": "#/$defs/AuthConfig" },
+    "access": { "$ref": "#/$defs/AccessPolicy" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "documentation_url": { "type": "string", "description": "技能文档 URL" },
+    "created_at": { "type": "string", "description": "创建时间（ISO 8601）" },
+    "updated_at": { "type": "string", "description": "更新时间（ISO 8601）" }
+  },
+  "required": [
+    "protocol",
+    "id",
+    "name",
+    "version",
+    "capability_type",
+    "description",
+    "provider",
+    "endpoint",
+    "inputs",
+    "output",
+    "auth",
+    "access"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CapabilityType": {
+      "type": "string",
+      "enum": ["plugin", "api", "knowledge", "task"],
+      "description": "能力类型枚举"
+    },
+    "AccessPolicy": {
+      "type": "string",
+      "enum": ["public", "restricted", "private"],
+      "description": "访问控制策略"
+    },
+    "AuthType": {
+      "type": "string",
+      "enum": ["api_key", "oauth2", "custom", "none"],
+      "description": "认证方式"
+    },
+    "ExecutionStatus": {
+      "type": "string",
+      "enum": ["accepted", "running", "completed", "failed", "timeout"],
+      "description": "执行状态枚举"
+    },
+    "ParameterDefinition": {
+      "type": "object",
+      "description": "参数定义",
+      "properties": {
+        "name": { "type": "string" },
+        "type": { "type": "string", "description": "JSON Schema 类型" },
+        "description": { "type": "string" },
+        "required": { "type": "boolean" },
+        "default": { "description": "默认值" },
+        "schema": { "type": "object", "description": "嵌套 JSON Schema（可选，用于复杂类型）" }
+      },
+      "required": ["name", "type", "description", "required"],
+      "additionalProperties": false
+    },
+    "AuthConfig": {
+      "type": "object",
+      "description": "认证配置",
+      "properties": {
+        "type": { "$ref": "#/$defs/AuthType" },
+        "description": { "type": "string" },
+        "header": { "type": "string", "description": "api_key 认证的 header 名称" },
+        "oauth2": {
+          "type": "object",
+          "description": "oauth2 认证的配置",
+          "properties": {
+            "authorization_url": { "type": "string" },
+            "token_url": { "type": "string" },
+            "scopes": {
+              "type": "object",
+              "additionalProperties": { "type": "string" }
+            }
+          },
+          "required": ["authorization_url", "token_url", "scopes"],
+          "additionalProperties": false
+        },
+        "custom": {
+          "type": "object",
+          "description": "自定义认证的说明",
+          "properties": {
+            "instructions": { "type": "string" },
+            "parameters": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/ParameterDefinition" }
+            }
+          },
+          "required": ["instructions", "parameters"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["type"],
+      "additionalProperties": false
+    },
+    "InvocationEndpoint": {
+      "type": "object",
+      "description": "调用端点配置",
+      "properties": {
+        "url": { "type": "string" },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE"]
+        },
+        "content_type": { "type": "string", "description": "默认 application/json" },
+        "status_url": { "type": "string", "description": "状态查询端点模板，包含 {execution_id} 占位符" },
+        "result_url": { "type": "string", "description": "结果获取端点模板" },
+        "timeout_ms": { "type": "number" },
+        "retry": {
+          "type": "object",
+          "properties": {
+            "max_attempts": { "type": "number" },
+            "backoff_ms": { "type": "number" }
+          },
+          "required": ["max_attempts", "backoff_ms"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["url", "method"],
+      "additionalProperties": false
+    },
+    "OutputDefinition": {
+      "type": "object",
+      "description": "输出格式定义",
+      "properties": {
+        "content_type": { "type": "string", "description": "MIME 类型" },
+        "schema": { "type": "object", "description": "JSON Schema 描述输出结构" },
+        "description": { "type": "string" }
+      },
+      "required": ["content_type"],
+      "additionalProperties": false
+    },
+    "ProtocolVersion": {
+      "type": "object",
+      "description": "协议版本信息",
+      "properties": {
+        "version": { "type": "string", "description": "SemVer 格式，如 1.0.0" },
+        "changelog_url": { "type": "string", "description": "版本变更日志 URL" }
+      },
+      "required": ["version"],
+      "additionalProperties": false
+    },
+    "SkillIndexEntry": {
+      "type": "object",
+      "description": "技能索引条目",
+      "properties": {
+        "id": { "type": "string", "description": "技能 ID" },
+        "name": { "type": "string", "description": "技能名称" },
+        "capability_type": { "$ref": "#/$defs/CapabilityType" },
+        "description": { "type": "string", "description": "简短描述" },
+        "descriptor_url": { "type": "string", "description": "技能描述符完整 URL" },
+        "access": { "$ref": "#/$defs/AccessPolicy" },
+        "version": { "type": "string", "description": "技能版本" }
+      },
+      "required": ["id", "name", "capability_type", "description", "descriptor_url", "access", "version"],
+      "additionalProperties": false
+    },
+    "SkillIndex": {
+      "type": "object",
+      "description": "技能索引 - Well-Known URI 响应",
+      "properties": {
+        "protocol": { "$ref": "#/$defs/ProtocolVersion" },
+        "provider": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "url": { "type": "string" }
+          },
+          "required": ["name"],
+          "additionalProperties": false
+        },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/SkillIndexEntry" }
+        }
+      },
+      "required": ["protocol", "provider", "skills"],
+      "additionalProperties": false
+    },
+    "InvocationRequest": {
+      "type": "object",
+      "description": "技能调用请求",
+      "properties": {
+        "caller": {
+          "type": "object",
+          "properties": {
+            "id": { "type": "string" },
+            "type": { "type": "string", "description": "如 ifay, service, user" },
+            "credentials": { "type": "object", "description": "认证凭据" }
+          },
+          "required": ["id", "type"],
+          "additionalProperties": false
+        },
+        "skill_id": { "type": "string", "description": "目标技能 ID" },
+        "inputs": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "输入参数"
+        },
+        "context": {
+          "type": "object",
+          "description": "调用上下文",
+          "properties": {
+            "trace_id": { "type": "string" },
+            "priority": {
+              "type": "string",
+              "enum": ["low", "normal", "high"]
+            },
+            "timeout_ms": { "type": "number" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["caller", "skill_id", "inputs"],
+      "additionalProperties": false
+    },
+    "InvocationResponse": {
+      "type": "object",
+      "description": "技能调用响应",
+      "properties": {
+        "execution_id": { "type": "string", "description": "执行 ID" },
+        "status": { "$ref": "#/$defs/ExecutionStatus" },
+        "skill_id": { "type": "string", "description": "目标技能 ID" },
+        "output": { "description": "输出数据（status 为 completed 时）" },
+        "error": {
+          "type": "object",
+          "description": "错误信息（status 为 failed 或 timeout 时）",
+          "properties": {
+            "code": { "type": "string" },
+            "message": { "type": "string" },
+            "details": { "description": "错误详情" },
+            "retry": {
+              "type": "object",
+              "description": "超时时的重试建议",
+              "properties": {
+                "suggested_delay_ms": { "type": "number" },
+                "max_attempts": { "type": "number" }
+              },
+              "required": ["suggested_delay_ms", "max_attempts"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["code", "message"],
+          "additionalProperties": false
+        },
+        "timestamps": {
+          "type": "object",
+          "description": "时间戳",
+          "properties": {
+            "created_at": { "type": "string" },
+            "updated_at": { "type": "string" },
+            "completed_at": { "type": "string" }
+          },
+          "required": ["created_at", "updated_at"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["execution_id", "status", "skill_id", "timestamps"],
+      "additionalProperties": false
+    }
+  }
+}

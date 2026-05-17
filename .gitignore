@@ -1,0 +1,13 @@
+# Ignore everything
+*
+
+# Allow docs and schema directories
+!/docs/
+!/docs/**
+!/schema/
+!/schema/**
+
+# Allow essential project files
+!/README.md
+!/LICENSE
+!/.gitignore
