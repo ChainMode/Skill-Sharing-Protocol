@@ -1,8 +1,8 @@
 # Spezifikation des Skill Sharing Protocol
 
-**Status:** Entwurf  
+**Status:** Final  
 **Version:** 1.0.0  
-**Datum:** 2025-01-01  
+**Datum:** 2025-10-25  
 **Schema:** [`schema/draft/schema.json`](../../../../schema/draft/schema.json), [`schema/draft/schema.ts`](../../../../schema/draft/schema.ts)
 
 ---

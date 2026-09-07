@@ -1,8 +1,8 @@
 # 技能共享协议规范
 
-**状态：** 草稿  
+**状态：** 正式  
 **版本：** 1.0.0  
-**日期：** 2025-01-01  
+**日期：** 2025-10-25  
 **Schema：** [`schema/draft/schema.json`](../../../../schema/draft/schema.json)、[`schema/draft/schema.ts`](../../../../schema/draft/schema.ts)
 
 ---

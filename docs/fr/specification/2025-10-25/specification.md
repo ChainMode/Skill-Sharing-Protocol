@@ -1,8 +1,8 @@
 # Spécification du Protocole de Partage de Compétences
 
-**Statut :** Brouillon  
+**Statut :** Final  
 **Version :** 1.0.0  
-**Date :** 2025-01-01  
+**Date :** 2025-10-25  
 **Schéma :** [`schema/draft/schema.json`](../../../../schema/draft/schema.json), [`schema/draft/schema.ts`](../../../../schema/draft/schema.ts)
 
 ---

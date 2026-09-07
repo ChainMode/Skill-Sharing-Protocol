@@ -1,8 +1,8 @@
 # Skill Sharing Protocol 사양
 
-**상태:** 초안  
+**상태:** 정식  
 **버전:** 1.0.0  
-**날짜:** 2025-01-01  
+**날짜:** 2025-10-25  
 **Schema:** [`schema/draft/schema.json`](../../../../schema/draft/schema.json), [`schema/draft/schema.ts`](../../../../schema/draft/schema.ts)
 
 ---

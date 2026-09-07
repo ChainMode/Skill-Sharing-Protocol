@@ -1,8 +1,8 @@
 # Skill Sharing Protocol 仕様書
 
-**ステータス:** ドラフト
+**ステータス:** 正式版
 **バージョン:** 1.0.0
-**日付:** 2025-01-01
+**日付:** 2025-10-25
 **スキーマ:** [`schema/draft/schema.json`](../../../../schema/draft/schema.json), [`schema/draft/schema.ts`](../../../../schema/draft/schema.ts)
 
 ---
