@@ -1,4 +1,4 @@
-# 技能共享協議規範
+# 技能共享協定規範
 
 **狀態：** 草稿  
 **版本：** 1.0.0  
@@ -9,11 +9,11 @@
 
 ## 目錄
 
-1. [協議概述](#1-協議概述)
+1. [協定概述](#1-協定概述)
 2. [術語定義](#2-術語定義)
 3. [技能描述符規範](#3-技能描述符規範)
 4. [發現機制規範](#4-發現機制規範)
-5. [呼叫協議規範](#5-呼叫協議規範)
+5. [呼叫協定規範](#5-呼叫協定規範)
 6. [版本管理規範](#6-版本管理規範)
 7. [安全與認證規範](#7-安全與認證規範)
 8. [錯誤處理規範](#8-錯誤處理規範)
@@ -22,21 +22,21 @@
 
 ---
 
-## 1. 協議概述
+## 1. 協定概述
 
 ### 1.1 目的
 
-技能共享協議定義了一套去中心化的機制，用於在網際網路上發現、宣告和呼叫技能。它使技能提供者無需依賴中心化平台即可公開自身能力，並允許技能消費者（主要是 iFay 實例）自主發現和遠端呼叫這些技能。
+技能共享協定定義了一套去中心化的機制，用於在網際網路上發現、宣告和呼叫技能。它使技能提供者無需依賴中心化平台即可公開自身能力，並允許技能消費者（主要是 iFay 實例）自主發現和遠端呼叫這些技能。
 
 ### 1.2 設計原則
 
 - **去中心化發現：** 技能提供者在自己的網域下宣告技能。消費者透過 Well-Known URI 和直接 URL 發現技能——無需中心化註冊表。
 - **自描述性：** 每個技能透過標準化的 Skill Descriptor 文件完整描述自身的能力、介面和呼叫方式。
-- **協議即規範：** 交付物是協議文件和 Schema 定義檔，而非軟體應用程式。
+- **協定即規範：** 交付物是協定文件和 Schema 定義檔，而非軟體應用程式。
 
 ### 1.3 架構
 
-協議採用去中心化的 Provider-Consumer 架構，類似於 Web 的超連結發現模型和 P2P 網路的節點發現機制。
+協定採用去中心化的 Provider-Consumer 架構，類似於 Web 的超連結發現模型和 P2P 網路的節點發現機制。
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -57,17 +57,17 @@
 └─────────────────────────────────────────────────────┘
 ```
 
-### 1.4 協議互動流程
+### 1.4 協定互動流程
 
 1. **發現階段：** 消費者向提供者網域發送 `GET /.well-known/skill-sharing` 請求，接收包含所有已宣告技能參照的 Skill Index。
-2. **驗證階段：** 消費者使用 Schema Validator 對每個 Skill Descriptor 進行協議 Schema 驗證。
+2. **驗證階段：** 消費者使用 Schema Validator 對每個 Skill Descriptor 進行協定 Schema 驗證。
 3. **呼叫階段：** 消費者向技能的呼叫端點發送 POST 請求，接收執行 ID，並輪詢執行狀態和結果。
 
 ### 1.5 交付物
 
 | 交付物 | 描述 |
 |---|---|
-| 協議規範文件 | 提供 9 種語言版本，位於 `docs/{lang}/specification/` |
+| 協定規範文件 | 提供 9 種語言版本，位於 `docs/{lang}/specification/` |
 | JSON Schema | `schema/{version}/schema.json` — JSON Schema Draft 2020-12 |
 | TypeScript 型別定義 | `schema/{version}/schema.ts` — 嚴格的 TypeScript 介面 |
 | MDX 文件 | `schema/{version}/schema.mdx` — 互動式 Schema 文件 |
@@ -78,18 +78,18 @@
 
 | 術語 | 定義 |
 |---|---|
-| **iFay** | 智慧認知夥伴系統；技能共享協議的主要消費者，能夠發現和呼叫技能以增強自身能力。 |
-| **Skill（技能）** | 遵循本協議宣告的可呼叫能力單元，包括但不限於外掛程式、API、知識包和任務執行能力。 |
+| **iFay** | 智慧認知夥伴系統；技能共享協定的主要消費者，能夠發現和呼叫技能以增強自身能力。 |
+| **Skill（技能）** | 遵循本協定宣告的可呼叫能力單元，包括但不限於外掛程式、API、知識包和任務執行能力。 |
 | **Skill Provider（技能提供者）** | 在網際網路上宣告和公開技能的實體（個人、組織或自動化系統）。 |
 | **Skill Consumer（技能消費者）** | 發現並呼叫技能的實體；主要為 iFay 實例。 |
-| **Skill Descriptor（技能描述符）** | 遵循協議 Schema 的中繼資料文件，描述技能的能力、介面和呼叫方式。 |
+| **Skill Descriptor（技能描述符）** | 遵循協定 Schema 的中繼資料文件，描述技能的能力、介面和呼叫方式。 |
 | **Discovery Mechanism（發現機制）** | 技能消費者在去中心化網路中定位和發現 Skill Descriptor 的方法和流程。 |
-| **Protocol Schema（協議 Schema）** | 定義 Skill Descriptor 結構的形式化規範，包含 JSON Schema、TypeScript 型別和 MDX 文件。 |
-| **Skill Registry（技能註冊表）** | 選用的技能索引服務，用於加速技能發現；非協議運作的必要條件。 |
+| **Protocol Schema（協定 Schema）** | 定義 Skill Descriptor 結構的形式化規範，包含 JSON Schema、TypeScript 型別和 MDX 文件。 |
+| **Skill Registry（技能註冊表）** | 選用的技能索引服務，用於加速技能發現；非協定運作的必要條件。 |
 | **Invocation Endpoint（呼叫端點）** | Skill Descriptor 中宣告的遠端呼叫入口位址。 |
 | **Capability Type（能力類型）** | 技能的分類識別碼：`plugin`、`api`、`knowledge` 或 `task`。 |
 | **Schema Validator（Schema 驗證器）** | 根據 Protocol Schema 驗證 Skill Descriptor 合規性的工具或元件。 |
-| **Protocol Version（協議版本）** | 協議規範的版本識別碼，遵循語意化版本控制。 |
+| **Protocol Version（協定版本）** | 協定規範的版本識別碼，遵循語意化版本控制。 |
 | **Well-Known URI** | 標準化的發現路徑 `/.well-known/skill-sharing`，用於定位網域的 Skill Index。 |
 
 ---
@@ -98,9 +98,9 @@
 
 ### 3.1 概述
 
-Skill Descriptor 是協議的核心資料結構。它是一個 JSON 文件，完整描述單一技能的身分識別、能力、介面、呼叫方式和存取控制策略。
+Skill Descriptor 是協定的核心資料結構。它是一個 JSON 文件，完整描述單一技能的身分識別、能力、介面、呼叫方式和存取控制策略。
 
-每個 Skill Descriptor 在被視為有效之前，必須（MUST）通過協議的 JSON Schema（`schema/draft/schema.json`）驗證。
+每個 Skill Descriptor 在被視為有效之前，必須（MUST）通過協定的 JSON Schema（`schema/draft/schema.json`）驗證。
 
 ### 3.2 必要欄位
 
@@ -108,7 +108,7 @@ Skill Descriptor 是協議的核心資料結構。它是一個 JSON 文件，完
 
 | 欄位 | 型別 | 描述 |
 |---|---|---|
-| `protocol` | `ProtocolVersion` | 該描述符所遵循的協議版本。 |
+| `protocol` | `ProtocolVersion` | 該描述符所遵循的協定版本。 |
 | `id` | `string` | 技能的全域唯一識別碼。 |
 | `name` | `string` | 技能的人類可讀名稱。 |
 | `version` | `string` | 技能版本，SemVer 格式（如 `"1.0.0"`）。 |
@@ -353,7 +353,7 @@ Skill Index 是一個 JSON 文件，列出提供者網域下宣告的所有技�
 
 | 欄位 | 型別 | 必要 | 描述 |
 |---|---|---|---|
-| `protocol` | `ProtocolVersion` | 是 | 協議版本。 |
+| `protocol` | `ProtocolVersion` | 是 | 協定版本。 |
 | `provider` | `object` | 是 | 提供者資訊（必須包含 `name`；可包含 `url`）。 |
 | `skills` | `SkillIndexEntry[]` | 是 | 技能索引項目陣列。 |
 
@@ -437,11 +437,11 @@ Skill Index 中的每個項目包含技能的摘要資訊：
 
 ---
 
-## 5. 呼叫協議規範
+## 5. 呼叫協定規範
 
 ### 5.1 概述
 
-呼叫協議定義了技能消費者如何遠端呼叫已發現的技能。協議採用非同步請求-回應模式，支援狀態輪詢。
+呼叫協定定義了技能消費者如何遠端呼叫已發現的技能。協定採用非同步請求-回應模式，支援狀態輪詢。
 
 ### 5.2 呼叫流程
 
@@ -584,9 +584,9 @@ Skill Descriptor 的 `endpoint` 欄位定義了三個 URL 範本：
 
 ### 6.1 語意化版本控制
 
-技能共享協議遵循 [Semantic Versioning 2.0.0](https://semver.org/)（SemVer）。所有版本字串必須（MUST）符合 `MAJOR.MINOR.PATCH` 格式，其中：
+技能共享協定遵循 [Semantic Versioning 2.0.0](https://semver.org/)（SemVer）。所有版本字串必須（MUST）符合 `MAJOR.MINOR.PATCH` 格式，其中：
 
-- **MAJOR** — 非負整數。當協議發生不相容變更時遞增。
+- **MAJOR** — 非負整數。當協定發生不相容變更時遞增。
 - **MINOR** — 非負整數。當新增向後相容的功能時遞增。
 - **PATCH** — 非負整數。當進行向後相容的缺陷修復時遞增。
 
@@ -594,7 +594,7 @@ Skill Descriptor 的 `endpoint` 欄位定義了三個 URL 範本：
 
 ### 6.2 版本宣告
 
-每個 Skill Descriptor 必須（MUST）在 `protocol.version` 欄位中宣告其所遵循的協議版本：
+每個 Skill Descriptor 必須（MUST）在 `protocol.version` 欄位中宣告其所遵循的協定版本：
 
 ```json
 {
@@ -617,7 +617,7 @@ Skill Descriptor 的 `endpoint` 欄位定義了三個 URL 範本：
 
 ### 6.4 不相容處理
 
-當消費者遇到協議版本不相容的 Skill Descriptor 時：
+當消費者遇到協定版本不相容的 Skill Descriptor 時：
 
 1. 消費者不得（MUST NOT）嘗試呼叫該技能。
 2. 消費者應當（SHOULD）回傳 `VERSION_INCOMPATIBLE` 錯誤（參見[第 8 節](#8-錯誤處理規範)）。
@@ -639,7 +639,7 @@ schema/
     └── schema.mdx
 ```
 
-當新的協議版本發佈時，草稿 Schema 將被複製到新的日期標記目錄中。
+當新的協定版本發佈時，草稿 Schema 將被複製到新的日期標記目錄中。
 
 ---
 
@@ -647,7 +647,7 @@ schema/
 
 ### 7.1 概述
 
-技能共享協議提供彈性的認證和存取控制框架。技能提供者在 Skill Descriptor 中宣告安全需求，消費者負責在呼叫前滿足這些需求。
+技能共享協定提供彈性的認證和存取控制框架。技能提供者在 Skill Descriptor 中宣告安全需求，消費者負責在呼叫前滿足這些需求。
 
 ### 7.2 認證類型
 
@@ -746,7 +746,7 @@ schema/
 
 ### 8.1 錯誤類別
 
-協議定義了七種錯誤類別：
+協定定義了七種錯誤類別：
 
 | 錯誤類別 | 代碼 | HTTP 狀態碼 | 情境 |
 |---|---|---|---|
@@ -756,7 +756,7 @@ schema/
 | 技能未找到 | `SKILL_NOT_FOUND` | 404 | 請求的技能 ID 或描述符 URL 不存在。 |
 | 呼叫逾時 | `INVOCATION_TIMEOUT` | 408 / 504 | 技能執行超過設定的逾時時間。 |
 | 端點不可達 | `ENDPOINT_UNREACHABLE` | 502 / 503 | 呼叫端點無法連線。 |
-| 版本不相容 | `VERSION_INCOMPATIBLE` | 422 | Skill Descriptor 的協議版本與消費者不相容。 |
+| 版本不相容 | `VERSION_INCOMPATIBLE` | 422 | Skill Descriptor 的協定版本與消費者不相容。 |
 
 ### 8.2 統一錯誤回應格式
 
@@ -919,7 +919,7 @@ schema/
 
 #### 8.3.7 版本不相容
 
-當 Skill Descriptor 的協議版本與消費者不相容時回傳。`details` 欄位應當（SHOULD）包含消費者支援的版本範圍和描述符要求的版本。
+當 Skill Descriptor 的協定版本與消費者不相容時回傳。`details` 欄位應當（SHOULD）包含消費者支援的版本範圍和描述符要求的版本。
 
 ```json
 {
@@ -955,7 +955,7 @@ Schema 透過 `$defs` 定義了以下頂層型別：
 | `SkillIndexEntry` | Skill Index 中的單一項目。 |
 | `InvocationRequest` | 技能呼叫請求結構。 |
 | `InvocationResponse` | 技能呼叫回應結構。 |
-| `ProtocolVersion` | 協議版本資訊。 |
+| `ProtocolVersion` | 協定版本資訊。 |
 | `CapabilityType` | 能力類型列舉。 |
 | `AccessPolicy` | 存取控制策略列舉。 |
 | `AuthType` | 認證類型列舉。 |
@@ -1149,4 +1149,4 @@ Content-Type: application/json
 
 ## 授權條款
 
-本規範是技能共享協議專案的一部分。詳情請參閱 [LICENSE](../../../../LICENSE) 檔案。
+本規範是技能共享協定專案的一部分。詳情請參閱 [LICENSE](../../../../LICENSE) 檔案。
