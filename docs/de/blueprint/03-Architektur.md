@@ -94,7 +94,7 @@ project-root/
 ├── docs/
 │   ├── en/                          # Basissprache (Englisch)
 │   │   ├── specification/
-│   │   │   ├── 2025-11-25/          # Versionierte Dokumente
+│   │   │   ├── 2025-10-25/          # Versionierte Dokumente
 │   │   │   └── draft/               # Entwurfsdokumente
 │   │   ├── blueprint/               # Blueprint-Dokumente
 │   │   ├── community/               # Community-Dokumente

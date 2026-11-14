@@ -27,7 +27,7 @@ docs/{language_code}/
 ├── specification/
 │   ├── draft/                # Document de spécification brouillon
 │   │   └── specification.md
-│   └── 2025-11-25/          # Document de spécification versionné
+│   └── 2025-10-25/          # Document de spécification versionné
 │       └── specification.md
 ├── blueprint/               # Documentation blueprint
 │   └── illustration/        # Ressources d'illustration
@@ -57,8 +57,8 @@ Quand les documents de la langue de base sont mis à jour, les autres versions l
 
 ```markdown
 ---
-base_version: en/2025-11-25
+base_version: en/2025-10-25
 sync_status: synced | outdated | in_progress
-last_synced: 2025-11-25
+last_synced: 2025-10-25
 ---
 ```
