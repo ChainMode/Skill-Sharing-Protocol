@@ -1,13 +1,29 @@
-# Ignore everything
+# Ignore everything by default (GOV-05 process tool isolation)
 *
 
-# Allow docs and schema directories
+# Allow public documentation and schema directories
 !/docs/
 !/docs/**
 !/schema/
 !/schema/**
+!/schemas/
+!/schemas/**
+!/vectors/
+!/vectors/**
+
+# Allow TypeScript reference implementation and test config
+!/src/
+!/src/**
+!/package.json
+!/tsconfig.json
+!/vitest.config.ts
 
 # Allow essential project files
 !/README.md
 !/LICENSE
 !/.gitignore
+
+# Never allow OS metadata or build artifacts inside whitelisted trees
+**/.DS_Store
+node_modules/
+dist/

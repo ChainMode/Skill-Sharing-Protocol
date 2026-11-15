@@ -1,6 +1,141 @@
-# Skill Sharing Protocol Schema (2025-10-25)
+# Skill Sharing Protocol (SSP) 1.0 Schema Reference (`2025-10-25`)
 
+- **Protocol Token**: `ssp/1.0` (`protocol.version: "1.0"`, two-segment `MAJOR.MINOR`, no `PATCH`)
+- **Normative JSON Schema**: [`schemas/ssp-1.0.json`](../../schemas/ssp-1.0.json) / [`schema/2025-10-25/schema.json`](./schema.json)
+- **TypeScript Definitions**: [`schema/2025-10-25/schema.ts`](./schema.ts)
+- **Conformance Vectors**: [`vectors/ssp-1.0-conformance.json`](../../vectors/ssp-1.0-conformance.json)
 
+## Core Data Structures
 
+| Type | Purpose | Key Constraints |
+|------|---------|-----------------|
+| `SkillDescriptor` | Self-describing metadata contract for a remotely invocable skill | 12 required fields + optional `SkillProof` (`EdDSA` JCS+JWS) |
+| `SkillProof` | Detached Ed25519 JWS signature over RFC 8785 JCS canonicalized payload | `alg: "EdDSA"`, `kid` bound to `provider.fay_id`, finite `issued_at`/`expires_at` |
+| `SkillIndex` | Response served at `GET /.well-known/skill-sharing` | Unique `skills[].id`, excludes `private` skills when unauthenticated |
+| `InvocationRequest` | Payload sent to `POST {endpoint.url}` | Canonical `caller.id` (`ifay_<base32>` or `cofay_<base32>`), optional `mandate_ref` |
+| `InvocationResponse` | Async execution envelope (`202 Accepted` + status polling) | `accepted` → `running` → `completed` \| `failed` \| `timeout` |
 
+## Interactive Descriptor & Verification Playground
 
+export const sampleSignedDescriptor = {
+  protocol: {
+    version: "1.0",
+    changelog_url: "https://skills.example.com/changelog",
+  },
+  id: "com.example.weather-forecast",
+  name: "Weather Forecast API",
+  version: "2.1.0",
+  capability_type: "api",
+  description: "Provides 7-day meteorological forecasts for a target city.",
+  provider: {
+    name: "Example Weather Cooperative",
+    fay_id: "cofay_weather2345",
+    url: "https://skills.example.com",
+  },
+  endpoint: {
+    url: "https://skills.example.com/skills/com.example.weather-forecast/invoke",
+    method: "POST",
+    status_url: "https://skills.example.com/invocations/{execution_id}",
+    result_url: "https://skills.example.com/invocations/{execution_id}",
+    timeout_ms: 15000,
+  },
+  inputs: [
+    {
+      name: "city",
+      type: "string",
+      description: "Target city name",
+      required: true,
+    },
+  ],
+  output: {
+    content_type: "application/json",
+  },
+  auth: {
+    type: "oauth2",
+    oauth2: {
+      authorization_url: "https://skills.example.com/oauth/authorize",
+      token_url: "https://skills.example.com/oauth/token",
+      scopes: {
+        "skill:invoke": "Invoke protected forecasting skills",
+      },
+    },
+  },
+  access: "restricted",
+  proof: {
+    alg: "EdDSA",
+    kid: "cofay_weather2345#key-1",
+    issued_at: "2026-11-15T00:00:00Z",
+    expires_at: "2026-12-15T00:00:00Z",
+    jws: "eyJhbGciOiJFZERTQSIsImtpZCI6ImNvZmF5X3dlYXRoZXIyMzQ1I2tleS0xIn0..c2lnbmF0dXJlX2V4YW1wbGU",
+  },
+};
+
+export function DescriptorInspector({ descriptor = sampleSignedDescriptor }) {
+  const missing = [
+    "protocol",
+    "id",
+    "name",
+    "version",
+    "capability_type",
+    "description",
+    "provider",
+    "endpoint",
+    "inputs",
+    "output",
+    "auth",
+    "access",
+  ].filter((key) => !(key in descriptor));
+
+  const twoSegmentProtocol = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(
+    descriptor?.protocol?.version ?? ""
+  );
+
+  return (
+    <div data-ssp-playground="1.0">
+      <p>
+        <strong>Skill ID:</strong> <code>{descriptor.id}</code> (
+        <code>{descriptor.capability_type}</code> / <code>{descriptor.access}</code>)
+      </p>
+      <p>
+        <strong>Protocol Version Valid (MAJOR.MINOR):</strong>{" "}
+        <code>{String(twoSegmentProtocol)}</code>
+      </p>
+      <p>
+        <strong>Missing Required Fields:</strong>{" "}
+        <code>{missing.length === 0 ? "none" : missing.join(", ")}</code>
+      </p>
+      <pre>{JSON.stringify(descriptor, null, 2)}</pre>
+    </div>
+  );
+}
+
+<DescriptorInspector />
+
+## Interactive Invocation Request Example (with FayID & Mandate Attribution)
+
+```json
+{
+  "caller": {
+    "id": "ifay_alice234567",
+    "type": "ifay"
+  },
+  "skill_id": "com.example.weather-forecast",
+  "inputs": {
+    "city": "Tokyo"
+  },
+  "mandate_ref": "mandate_fap_2026_001",
+  "context": {
+    "trace_id": "trace-ssp-1001",
+    "priority": "normal",
+    "timeout_ms": 10000
+  }
+}
+```
+
+## Access Policy & Endpoint Enforcement Matrix
+
+| `access` | Unauthenticated `/.well-known/skill-sharing` | Unauthenticated `GET /skills/:id` | Unauthenticated `POST /skills/:id/invoke` |
+|----------|----------------------------------------------|-----------------------------------|-------------------------------------------|
+| `public` | Included | `200 OK` | `202 Accepted` (if `auth.type: "none"`) |
+| `restricted` | Included | `401 AUTH_REQUIRED` (`403` if unauthorized) | `401 AUTH_REQUIRED` (`403` if unauthorized) |
+| `private` | Excluded | `401 AUTH_REQUIRED` (`403` if unauthorized) | `401 AUTH_REQUIRED` (`403` if unauthorized) |

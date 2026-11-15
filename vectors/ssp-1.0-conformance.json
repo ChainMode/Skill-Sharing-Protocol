@@ -1,0 +1,1108 @@
+{
+  "suite": "ssp-1.0-conformance",
+  "protocol_version": "1.0",
+  "edition": "2025-10-25",
+  "generated_at": "2026-11-16T00:00:00.000Z",
+  "evaluation_time": "2026-11-16T01:00:00.000Z",
+  "trust_anchor": {
+    "fay_id": "org_ifay-labs",
+    "origin": "https://skills.ifay.example",
+    "keys": [
+      {
+        "kid": "org_ifay-labs#key-ed25519-1",
+        "kty": "OKP",
+        "crv": "Ed25519",
+        "x": "ebVWLo_mVPlAeLES6KmLp5AfhTrmlb7X4OORC60ElmQ"
+      }
+    ],
+    "updated_at": "2026-11-16T00:00:00.000Z"
+  },
+  "vectors": [
+    {
+      "id": "SSP-VEC-001",
+      "category": "crypto_trust",
+      "polarity": "positive",
+      "title": "Valid JCS + Detached Ed25519 JWS signed SkillDescriptor verifies against /.well-known/fayid",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..7yOANfKD0Iyt5DCTjj_pkHF7SmeJvypVMVJJ_Bi-W-Rnj9iGgTPvcnFuMSO69rx_U-asVsg4hyQI0HebChdfAg"
+          }
+        },
+        "expected_origin": "https://skills.ifay.example",
+        "canonical_jcs_byte_length": 873
+      },
+      "expected": {
+        "schema_valid": true,
+        "verified": true,
+        "trust_status": "verified",
+        "auto_invocation_allowed": true
+      }
+    },
+    {
+      "id": "SSP-VEC-002",
+      "category": "crypto_trust",
+      "polarity": "positive",
+      "title": "Valid JCS + Detached Ed25519 JWS signed SkillIndex verifies with unique skill IDs and origin binding",
+      "input": {
+        "skill_index": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example"
+          },
+          "skills": [
+            {
+              "id": "doc-summarize",
+              "name": "Document Summarizer",
+              "version": "1.0.0",
+              "capability_type": "api",
+              "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+              "access": "public",
+              "descriptor_url": "https://skills.ifay.example/skills/doc-summarize"
+            },
+            {
+              "id": "compliance-audit",
+              "name": "Compliance Audit Skill",
+              "version": "1.0.0",
+              "capability_type": "plugin",
+              "description": "Restricted governance compliance verifier.",
+              "access": "restricted",
+              "descriptor_url": "https://skills.ifay.example/skills/compliance-audit"
+            }
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..yXchTTpa-DWQHZ11FT8vl2r9ueiXpBx6GITwKLUMYIQHvHuNYMJ8zBMzg-occwioag8vF3IAZnQpE89hCATOAw"
+          }
+        },
+        "expected_origin": "https://skills.ifay.example"
+      },
+      "expected": {
+        "schema_valid": true,
+        "verified": true,
+        "trust_status": "verified"
+      }
+    },
+    {
+      "id": "SSP-VEC-003",
+      "category": "crypto_trust",
+      "polarity": "negative",
+      "title": "Tampered SkillDescriptor endpoint URL fails Detached Ed25519 JWS verification and hard-blocks invocation",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/exfiltrate/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..7yOANfKD0Iyt5DCTjj_pkHF7SmeJvypVMVJJ_Bi-W-Rnj9iGgTPvcnFuMSO69rx_U-asVsg4hyQI0HebChdfAg"
+          }
+        },
+        "expected_origin": "https://skills.ifay.example"
+      },
+      "expected": {
+        "schema_valid": true,
+        "verified": false,
+        "trust_status": "unverified",
+        "failure_reason": "INVALID_JWS_SIGNATURE",
+        "auto_invocation_allowed": false,
+        "manual_override_allowed": false
+      }
+    },
+    {
+      "id": "SSP-VEC-004",
+      "category": "crypto_trust",
+      "polarity": "negative",
+      "title": "Expired SkillProof is rejected during freshness window verification",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-15T00:00:00.000Z",
+            "expires_at": "2026-11-15T01:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..7yOANfKD0Iyt5DCTjj_pkHF7SmeJvypVMVJJ_Bi-W-Rnj9iGgTPvcnFuMSO69rx_U-asVsg4hyQI0HebChdfAg"
+          }
+        },
+        "expected_origin": "https://skills.ifay.example"
+      },
+      "expected": {
+        "schema_valid": true,
+        "verified": false,
+        "trust_status": "unverified",
+        "failure_reason": "PROOF_EXPIRED",
+        "auto_invocation_allowed": false
+      }
+    },
+    {
+      "id": "SSP-VEC-005",
+      "category": "origin_binding",
+      "polarity": "negative",
+      "title": "Cross-origin endpoint mismatch against FayID authorized origin fails Origin <-> FayID binding",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "rogue-origin-skill",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://rogue-mirror.example/skills/rogue-origin-skill/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..3xm4_QLtA0WoN0lunQu5pYaUVxVF7eyXU7DGu29lFT_bSwYg85pZKsN2i4B62x8DKRfKNCAyryJ6IBdSQEKoCQ"
+          }
+        },
+        "expected_origin": "https://skills.ifay.example"
+      },
+      "expected": {
+        "schema_valid": true,
+        "verified": false,
+        "trust_status": "unverified",
+        "failure_reason": "ORIGIN_MISMATCH",
+        "auto_invocation_allowed": false,
+        "manual_override_allowed": false
+      }
+    },
+    {
+      "id": "SSP-VEC-006",
+      "category": "default_deny_policy",
+      "polarity": "negative",
+      "title": "Unsigned SkillDescriptor is marked unverified and blocked from automatic invocation by Consumer Default-Deny policy",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ]
+        },
+        "expected_origin": "https://skills.ifay.example",
+        "faying_confirmation_ref": "faying_confirm_vec006"
+      },
+      "expected": {
+        "schema_valid": true,
+        "verified": false,
+        "trust_status": "unverified",
+        "failure_reason": "MISSING_PROOF",
+        "auto_invocation_allowed": false,
+        "manual_override_with_human_prime_confirmation_allowed": true
+      }
+    },
+    {
+      "id": "SSP-VEC-007",
+      "category": "version_compatibility",
+      "polarity": "negative",
+      "title": "Major version mismatch (descriptor 2.0 vs consumer 1.0) fails with VERSION_INCOMPATIBLE",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "2.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ]
+        },
+        "consumer_version": "1.0"
+      },
+      "expected": {
+        "schema_valid": true,
+        "compatible": false,
+        "error_code": "VERSION_INCOMPATIBLE"
+      }
+    },
+    {
+      "id": "SSP-VEC-008",
+      "category": "version_compatibility",
+      "polarity": "negative",
+      "title": "Cross-major downward mismatch (descriptor 1.0 vs consumer 2.0) fails with VERSION_INCOMPATIBLE",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..7yOANfKD0Iyt5DCTjj_pkHF7SmeJvypVMVJJ_Bi-W-Rnj9iGgTPvcnFuMSO69rx_U-asVsg4hyQI0HebChdfAg"
+          }
+        },
+        "consumer_version": "2.0"
+      },
+      "expected": {
+        "schema_valid": true,
+        "compatible": false,
+        "error_code": "VERSION_INCOMPATIBLE"
+      }
+    },
+    {
+      "id": "SSP-VEC-009",
+      "category": "version_compatibility",
+      "polarity": "positive",
+      "title": "Same-major higher-minor descriptor (1.2 vs consumer 1.0) succeeds via additive forward compatibility",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.2"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..Qf1JvyAvGZ-kDti4xSjDJhRoS4LGJK3t_w4FBNI6fmoNHXtiijli6ObmDGL7qSAbkkpeZONd7A9b6Zy-QHP2DA"
+          }
+        },
+        "consumer_version": "1.0"
+      },
+      "expected": {
+        "schema_valid": true,
+        "compatible": true
+      }
+    },
+    {
+      "id": "SSP-VEC-010",
+      "category": "version_format",
+      "polarity": "negative",
+      "title": "Legacy three-segment SemVer protocol.version (1.0.0) is rejected by two-segment SSP 1.0 grammar",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ]
+        }
+      },
+      "expected": {
+        "schema_valid": false,
+        "violation_path": "/protocol/version"
+      }
+    },
+    {
+      "id": "SSP-VEC-011",
+      "category": "endpoint_auth",
+      "polarity": "negative",
+      "title": "Private skill is omitted from unauthenticated SkillIndex AND rejects unauthenticated direct descriptor/invoke requests with HTTP 401 AUTH_REQUIRED",
+      "input": {
+        "skill_id": "internal-ledger-sync",
+        "access": "private",
+        "credentials": null,
+        "invocation_request": {
+          "skill_id": "internal-ledger-sync",
+          "inputs": {
+            "namespace": "ops"
+          },
+          "caller": {
+            "id": "cofay_7k3m5p2q4r6s7t2v4w6x5y2z4a",
+            "type": "cofay"
+          }
+        }
+      },
+      "expected": {
+        "listed_in_unauthenticated_index": false,
+        "descriptor_http_status": 401,
+        "invoke_http_status": 401,
+        "error_code": "AUTH_REQUIRED"
+      }
+    },
+    {
+      "id": "SSP-VEC-012",
+      "category": "endpoint_auth",
+      "polarity": "negative",
+      "title": "Restricted skill is discoverable in SkillIndex, rejects unauthenticated fetch/invoke with 401 AUTH_REQUIRED, and rejects under-scoped Bearer token with 403 PERMISSION_DENIED",
+      "input": {
+        "skill_id": "compliance-audit",
+        "access": "restricted",
+        "underscoped_token_id": "underscoped_caller",
+        "invocation_request": {
+          "skill_id": "compliance-audit",
+          "inputs": {
+            "report_id": "rep-2026-11"
+          },
+          "caller": {
+            "id": "cofay_3b5d7f2a2c4e6g7i2k4m6n7p2q",
+            "type": "cofay"
+          }
+        }
+      },
+      "expected": {
+        "listed_in_unauthenticated_index": true,
+        "unauthenticated_http_status": 401,
+        "unauthenticated_error_code": "AUTH_REQUIRED",
+        "underscoped_http_status": 403,
+        "underscoped_error_code": "PERMISSION_DENIED"
+      }
+    },
+    {
+      "id": "SSP-VEC-013",
+      "category": "endpoint_auth",
+      "polarity": "positive",
+      "title": "Authorized OAuth2 Bearer credential with canonical FayID and Faying mandate_ref succeeds on restricted skill",
+      "input": {
+        "skill_id": "compliance-audit",
+        "authorized_token_id": "authorized_auditor",
+        "invocation_request": {
+          "skill_id": "compliance-audit",
+          "inputs": {
+            "report_id": "rep-2026-11"
+          },
+          "caller": {
+            "id": "cofay_7k3m5p2q4r6s7t2v4w6x5y2z4a",
+            "type": "cofay",
+            "organization_id": "org_ifay-labs"
+          },
+          "mandate_ref": "faying_mandate_20261116_001",
+          "context": {
+            "trace_id": "trace-ssp-vec-013",
+            "priority": "high"
+          }
+        }
+      },
+      "expected": {
+        "request_schema_valid": true,
+        "invoke_http_status": 200,
+        "response_status": "completed"
+      }
+    },
+    {
+      "id": "SSP-VEC-014",
+      "category": "caller_identity",
+      "polarity": "negative",
+      "title": "Non-canonical caller.id or mismatched caller.type (ifay with cofay_ prefix) is rejected with VALIDATION_ERROR",
+      "input": {
+        "non_fayid_request": {
+          "skill_id": "doc-summarize",
+          "inputs": {
+            "content": "Hello"
+          },
+          "caller": {
+            "id": "legacy-user-alice-42",
+            "type": "ifay"
+          }
+        },
+        "prefix_type_mismatch_request": {
+          "skill_id": "doc-summarize",
+          "inputs": {
+            "content": "Hello"
+          },
+          "caller": {
+            "id": "cofay_7k3m5p2q4r6s7t2v4w6x5y2z4a",
+            "type": "ifay"
+          }
+        }
+      },
+      "expected": {
+        "non_fayid_valid": false,
+        "prefix_type_mismatch_valid": false,
+        "violation_path": "/caller/id",
+        "error_code": "VALIDATION_ERROR"
+      }
+    },
+    {
+      "id": "SSP-VEC-015",
+      "category": "async_task_polling",
+      "polarity": "positive",
+      "title": "Asynchronous human-in-the-loop task capability returns accepted execution_id and transitions running -> completed via status polling without monetary settlement",
+      "input": {
+        "skill_id": "knowledge-reindex-task",
+        "capability_type": "task",
+        "execution_mode": "human_in_the_loop",
+        "invocation_request": {
+          "skill_id": "knowledge-reindex-task",
+          "inputs": {
+            "corpus": "ssp-1.0-spec"
+          },
+          "caller": {
+            "id": "ifay_7z6y5x4w3v2u7t6s5r4q3p2n7m",
+            "type": "ifay"
+          },
+          "mandate_ref": "faying_mandate_20261116_task"
+        }
+      },
+      "expected": {
+        "initial_status": "accepted",
+        "intermediate_status": "running",
+        "terminal_status": "completed",
+        "has_monetary_settlement_fields": false
+      }
+    },
+    {
+      "id": "SSP-VEC-016",
+      "category": "boundary_minimal",
+      "polarity": "positive",
+      "title": "Boundary zero-input public SkillDescriptor and empty SkillIndex pass schema validation and JWS verification",
+      "input": {
+        "descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "ping-check",
+          "name": "Zero-Input Liveness Check",
+          "version": "0.1.0",
+          "capability_type": "plugin",
+          "description": "Returns static provider health status without input parameters.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example"
+          },
+          "inputs": [],
+          "output": {
+            "content_type": "application/json",
+            "description": "Health status payload"
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/ping-check/invoke",
+            "method": "GET"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..pKsjHKu_Q_e286PLPY2bAIjgzQA1uVVjQYl3WJgb62x9RS9FPVw8S40s9Ny2V1rG3ibAMUGecjOC4CTAzQbXBg"
+          }
+        },
+        "empty_index": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example"
+          },
+          "skills": [],
+          "proof": {
+            "alg": "EdDSA",
+            "kid": "org_ifay-labs#key-ed25519-1",
+            "issued_at": "2026-11-16T00:00:00.000Z",
+            "expires_at": "2026-11-16T12:00:00.000Z",
+            "jws": "eyJhbGciOiJFZERTQSIsImtpZCI6Im9yZ19pZmF5LWxhYnMja2V5LWVkMjU1MTktMSJ9..0H7Bb92BOl57e_0JhlOK1jAq2yts-tLqs7QxoZIMFw08JcAoSeSdwUiP-7Z2UN4TcudyrTcAD2DBD0p-8G7GBg"
+          }
+        },
+        "expected_origin": "https://skills.ifay.example"
+      },
+      "expected": {
+        "descriptor_schema_valid": true,
+        "descriptor_verified": true,
+        "empty_index_schema_valid": true,
+        "empty_index_verified": true
+      }
+    },
+    {
+      "id": "SSP-VEC-017",
+      "category": "schema_constraints",
+      "polarity": "negative",
+      "title": "Invalid capability_type enum and undeclared monetary fee property are rejected by SSP 1.0 JSON Schema",
+      "input": {
+        "invalid_enum_descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "workflow",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ]
+        },
+        "undeclared_property_descriptor": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "id": "doc-summarize",
+          "name": "Document Summarizer",
+          "version": "1.0.0",
+          "capability_type": "api",
+          "execution_mode": "automated",
+          "description": "Summarizes structured Markdown documents for authorized Fay callers.",
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example",
+            "contact": "https://skills.ifay.example/contact"
+          },
+          "inputs": [
+            {
+              "name": "content",
+              "type": "string",
+              "required": true,
+              "description": "Markdown text to summarize"
+            }
+          ],
+          "output": {
+            "content_type": "application/json",
+            "description": "Structured summary output",
+            "schema": {
+              "type": "object",
+              "required": [
+                "summary"
+              ],
+              "properties": {
+                "summary": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "endpoint": {
+            "url": "https://skills.ifay.example/skills/doc-summarize/invoke",
+            "method": "POST",
+            "content_type": "application/json"
+          },
+          "auth": {
+            "type": "none"
+          },
+          "access": "public",
+          "tags": [
+            "nlp",
+            "summary"
+          ],
+          "price_per_call_usd": 0.05
+        }
+      },
+      "expected": {
+        "invalid_enum_valid": false,
+        "invalid_enum_path": "/capability_type",
+        "undeclared_property_valid": false,
+        "undeclared_property_path": "/price_per_call_usd"
+      }
+    },
+    {
+      "id": "SSP-VEC-018",
+      "category": "index_uniqueness",
+      "polarity": "negative",
+      "title": "SkillIndex containing duplicate skill IDs is rejected by validateSkillIndex",
+      "input": {
+        "duplicate_index": {
+          "protocol": {
+            "version": "1.0"
+          },
+          "provider": {
+            "name": "iFay Protocol Reference Lab",
+            "fay_id": "org_ifay-labs",
+            "url": "https://skills.ifay.example"
+          },
+          "skills": [
+            {
+              "id": "doc-summarize",
+              "name": "Document Summarizer A",
+              "version": "1.0.0",
+              "capability_type": "api",
+              "description": "First entry",
+              "access": "public",
+              "descriptor_url": "https://skills.ifay.example/skills/doc-summarize"
+            },
+            {
+              "id": "doc-summarize",
+              "name": "Document Summarizer B",
+              "version": "1.0.0",
+              "capability_type": "plugin",
+              "description": "Colliding second entry",
+              "access": "public",
+              "descriptor_url": "https://skills.ifay.example/skills/doc-summarize-b"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "schema_valid": false,
+        "violation_path": "/skills"
+      }
+    }
+  ]
+}

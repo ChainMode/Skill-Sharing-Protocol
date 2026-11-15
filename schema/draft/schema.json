@@ -1,26 +1,21 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://ifay.org/schema/draft/skill-sharing-protocol.json",
+  "$id": "https://ifay.ai/schemas/ssp-1.0.json",
   "title": "SkillDescriptor",
-  "description": "Skill Sharing Protocol - Skill Descriptor Schema (Draft)",
+  "description": "Skill Sharing Protocol (SSP) 1.0 Normative Schema (Edition 2025-10-25)",
   "type": "object",
   "properties": {
     "protocol": { "$ref": "#/$defs/ProtocolVersion" },
-    "id": { "type": "string", "description": "技能唯一标识符" },
-    "name": { "type": "string", "description": "技能名称" },
-    "version": { "type": "string", "description": "技能版本（SemVer）" },
-    "capability_type": { "$ref": "#/$defs/CapabilityType" },
-    "description": { "type": "string", "description": "技能描述" },
-    "provider": {
-      "type": "object",
-      "properties": {
-        "name": { "type": "string" },
-        "url": { "type": "string" },
-        "contact": { "type": "string" }
-      },
-      "required": ["name"],
-      "additionalProperties": false
+    "id": { "type": "string", "minLength": 1, "maxLength": 256, "description": "技能唯一标识符" },
+    "name": { "type": "string", "minLength": 1, "description": "技能名称" },
+    "version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+      "description": "技能自身实现版本（SemVer 格式，与两段式协议版本正交）"
     },
+    "capability_type": { "$ref": "#/$defs/CapabilityType" },
+    "description": { "type": "string", "minLength": 1, "description": "技能描述" },
+    "provider": { "$ref": "#/$defs/ProviderInfo" },
     "endpoint": { "$ref": "#/$defs/InvocationEndpoint" },
     "inputs": {
       "type": "array",
@@ -29,6 +24,11 @@
     "output": { "$ref": "#/$defs/OutputDefinition" },
     "auth": { "$ref": "#/$defs/AuthConfig" },
     "access": { "$ref": "#/$defs/AccessPolicy" },
+    "proof": { "$ref": "#/$defs/SkillProof" },
+    "execution_mode": {
+      "$ref": "#/$defs/ExecutionMode",
+      "description": "执行协同模式（用于标注自动化或人工在回路异步轮询，不含任何货币结算语义）"
+    },
     "tags": {
       "type": "array",
       "items": { "type": "string" }
@@ -53,10 +53,46 @@
   ],
   "additionalProperties": false,
   "$defs": {
+    "ProtocolVersionString": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$",
+      "description": "两段式协议版本 MAJOR.MINOR（如 \"1.0\"），严禁包含 PATCH 段或前导零"
+    },
+    "ProviderFayID": {
+      "type": "string",
+      "pattern": "^(ifay_[a-z2-7]+|cofay_[a-z2-7]+|org_[a-z0-9-]+)$",
+      "description": "提供者规范化 FayID（ifay_ / cofay_ / org_）"
+    },
+    "CallerFayID": {
+      "type": "string",
+      "pattern": "^(ifay|cofay)_[a-z2-7]+$",
+      "description": "调用方规范化 FayID（ifay_<base32> 或 cofay_<base32>）"
+    },
+    "CallerType": {
+      "type": "string",
+      "enum": ["ifay", "cofay"],
+      "description": "调用方 Fay 类型"
+    },
+    "OrganizationID": {
+      "type": "string",
+      "pattern": "^org_[a-z0-9-]+$",
+      "description": "组织规范化标识（coFay 归属组织投影）"
+    },
+    "MandateRef": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9._:/#-]+$",
+      "description": "Faying Mandate 授权责任归因引用（指向人类原型或归属组织委托凭据）"
+    },
     "CapabilityType": {
       "type": "string",
       "enum": ["plugin", "api", "knowledge", "task"],
       "description": "能力类型枚举"
+    },
+    "ExecutionMode": {
+      "type": "string",
+      "enum": ["automated", "human_in_the_loop"],
+      "description": "执行协同模式（task 型人工协同技能统一采用异步状态轮询且不绑定货币结算）"
     },
     "AccessPolicy": {
       "type": "string",
@@ -73,12 +109,70 @@
       "enum": ["accepted", "running", "completed", "failed", "timeout"],
       "description": "执行状态枚举"
     },
+    "ErrorCode": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_ERROR",
+        "AUTH_REQUIRED",
+        "PERMISSION_DENIED",
+        "SKILL_NOT_FOUND",
+        "INVOCATION_TIMEOUT",
+        "ENDPOINT_UNREACHABLE",
+        "VERSION_INCOMPATIBLE"
+      ],
+      "description": "SSP 标准错误代码"
+    },
+    "ProviderInfo": {
+      "type": "object",
+      "description": "技能提供者信息",
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "fay_id": { "$ref": "#/$defs/ProviderFayID" },
+        "url": { "type": "string", "minLength": 1 },
+        "contact": { "type": "string" }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "SkillProof": {
+      "type": "object",
+      "description": "RFC 8785 JCS + RFC 7515/8037 Detached Ed25519 JWS 签名证明",
+      "properties": {
+        "alg": {
+          "type": "string",
+          "const": "EdDSA",
+          "description": "签名算法，SSP 1.0 固定为 EdDSA (Ed25519)"
+        },
+        "kid": {
+          "type": "string",
+          "pattern": "^(ifay_[a-z2-7]+|cofay_[a-z2-7]+|org_[a-z0-9-]+)#[A-Za-z0-9._-]+$",
+          "description": "签发主体 FayID 密钥标识（如 cofay_<base32>#key-1）"
+        },
+        "issued_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+          "description": "签发时间（ISO 8601 UTC）"
+        },
+        "expires_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+          "description": "过期时间（ISO 8601 UTC，强制有限有效期）"
+        },
+        "jws": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]+\\.\\.[A-Za-z0-9_-]+$",
+          "description": "Detached JWS 紧凑串 (<base64url(header)>..<base64url(signature)>)"
+        }
+      },
+      "required": ["alg", "kid", "issued_at", "expires_at", "jws"],
+      "additionalProperties": false
+    },
     "ParameterDefinition": {
       "type": "object",
       "description": "参数定义",
       "properties": {
-        "name": { "type": "string" },
-        "type": { "type": "string", "description": "JSON Schema 类型" },
+        "name": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "minLength": 1, "description": "JSON Schema 类型" },
         "description": { "type": "string" },
         "required": { "type": "boolean" },
         "default": { "description": "默认值" },
@@ -98,8 +192,8 @@
           "type": "object",
           "description": "oauth2 认证的配置",
           "properties": {
-            "authorization_url": { "type": "string" },
-            "token_url": { "type": "string" },
+            "authorization_url": { "type": "string", "minLength": 1 },
+            "token_url": { "type": "string", "minLength": 1 },
             "scopes": {
               "type": "object",
               "additionalProperties": { "type": "string" }
@@ -112,7 +206,7 @@
           "type": "object",
           "description": "自定义认证的说明",
           "properties": {
-            "instructions": { "type": "string" },
+            "instructions": { "type": "string", "minLength": 1 },
             "parameters": {
               "type": "array",
               "items": { "$ref": "#/$defs/ParameterDefinition" }
@@ -123,26 +217,42 @@
         }
       },
       "required": ["type"],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "oauth2" } },
+            "required": ["type"]
+          },
+          "then": { "required": ["oauth2"] }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "custom" } },
+            "required": ["type"]
+          },
+          "then": { "required": ["custom"] }
+        }
+      ]
     },
     "InvocationEndpoint": {
       "type": "object",
       "description": "调用端点配置",
       "properties": {
-        "url": { "type": "string" },
+        "url": { "type": "string", "minLength": 1 },
         "method": {
           "type": "string",
           "enum": ["GET", "POST", "PUT", "DELETE"]
         },
         "content_type": { "type": "string", "description": "默认 application/json" },
         "status_url": { "type": "string", "description": "状态查询端点模板，包含 {execution_id} 占位符" },
-        "result_url": { "type": "string", "description": "结果获取端点模板" },
-        "timeout_ms": { "type": "number" },
+        "result_url": { "type": "string", "description": "结果获取端点模板，包含 {execution_id} 占位符" },
+        "timeout_ms": { "type": "number", "minimum": 1 },
         "retry": {
           "type": "object",
           "properties": {
-            "max_attempts": { "type": "number" },
-            "backoff_ms": { "type": "number" }
+            "max_attempts": { "type": "number", "minimum": 1 },
+            "backoff_ms": { "type": "number", "minimum": 0 }
           },
           "required": ["max_attempts", "backoff_ms"],
           "additionalProperties": false
@@ -155,7 +265,7 @@
       "type": "object",
       "description": "输出格式定义",
       "properties": {
-        "content_type": { "type": "string", "description": "MIME 类型" },
+        "content_type": { "type": "string", "minLength": 1, "description": "MIME 类型" },
         "schema": { "type": "object", "description": "JSON Schema 描述输出结构" },
         "description": { "type": "string" }
       },
@@ -164,9 +274,9 @@
     },
     "ProtocolVersion": {
       "type": "object",
-      "description": "协议版本信息",
+      "description": "协议版本信息（SSP 两段式 MAJOR.MINOR）",
       "properties": {
-        "version": { "type": "string", "description": "SemVer 格式，如 1.0.0" },
+        "version": { "$ref": "#/$defs/ProtocolVersionString" },
         "changelog_url": { "type": "string", "description": "版本变更日志 URL" }
       },
       "required": ["version"],
@@ -176,35 +286,32 @@
       "type": "object",
       "description": "技能索引条目",
       "properties": {
-        "id": { "type": "string", "description": "技能 ID" },
-        "name": { "type": "string", "description": "技能名称" },
+        "id": { "type": "string", "minLength": 1, "maxLength": 256, "description": "技能 ID" },
+        "name": { "type": "string", "minLength": 1, "description": "技能名称" },
         "capability_type": { "$ref": "#/$defs/CapabilityType" },
-        "description": { "type": "string", "description": "简短描述" },
-        "descriptor_url": { "type": "string", "description": "技能描述符完整 URL" },
+        "description": { "type": "string", "minLength": 1, "description": "简短描述" },
+        "descriptor_url": { "type": "string", "minLength": 1, "description": "技能描述符完整 URL" },
         "access": { "$ref": "#/$defs/AccessPolicy" },
-        "version": { "type": "string", "description": "技能版本" }
+        "version": {
+          "type": "string",
+          "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$",
+          "description": "技能实现版本（SemVer）"
+        }
       },
       "required": ["id", "name", "capability_type", "description", "descriptor_url", "access", "version"],
       "additionalProperties": false
     },
     "SkillIndex": {
       "type": "object",
-      "description": "技能索引 - Well-Known URI 响应",
+      "description": "技能索引 - Well-Known URI (/.well-known/skill-sharing) 响应",
       "properties": {
         "protocol": { "$ref": "#/$defs/ProtocolVersion" },
-        "provider": {
-          "type": "object",
-          "properties": {
-            "name": { "type": "string" },
-            "url": { "type": "string" }
-          },
-          "required": ["name"],
-          "additionalProperties": false
-        },
+        "provider": { "$ref": "#/$defs/ProviderInfo" },
         "skills": {
           "type": "array",
           "items": { "$ref": "#/$defs/SkillIndexEntry" }
-        }
+        },
+        "proof": { "$ref": "#/$defs/SkillProof" }
       },
       "required": ["protocol", "provider", "skills"],
       "additionalProperties": false
@@ -216,19 +323,46 @@
         "caller": {
           "type": "object",
           "properties": {
-            "id": { "type": "string" },
-            "type": { "type": "string", "description": "如 ifay, service, user" },
+            "id": { "$ref": "#/$defs/CallerFayID" },
+            "type": { "$ref": "#/$defs/CallerType" },
+            "organization_id": { "$ref": "#/$defs/OrganizationID" },
+            "mandate_ref": { "$ref": "#/$defs/MandateRef" },
             "credentials": { "type": "object", "description": "认证凭据" }
           },
           "required": ["id", "type"],
-          "additionalProperties": false
+          "additionalProperties": false,
+          "allOf": [
+            {
+              "if": {
+                "properties": { "type": { "const": "ifay" } },
+                "required": ["type"]
+              },
+              "then": {
+                "properties": {
+                  "id": { "type": "string", "pattern": "^ifay_[a-z2-7]+$" }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": { "type": { "const": "cofay" } },
+                "required": ["type"]
+              },
+              "then": {
+                "properties": {
+                  "id": { "type": "string", "pattern": "^cofay_[a-z2-7]+$" }
+                }
+              }
+            }
+          ]
         },
-        "skill_id": { "type": "string", "description": "目标技能 ID" },
+        "skill_id": { "type": "string", "minLength": 1, "description": "目标技能 ID" },
         "inputs": {
           "type": "object",
           "additionalProperties": {},
           "description": "输入参数"
         },
+        "mandate_ref": { "$ref": "#/$defs/MandateRef" },
         "context": {
           "type": "object",
           "description": "调用上下文",
@@ -238,7 +372,7 @@
               "type": "string",
               "enum": ["low", "normal", "high"]
             },
-            "timeout_ms": { "type": "number" }
+            "timeout_ms": { "type": "number", "minimum": 1 }
           },
           "additionalProperties": false
         }
@@ -246,31 +380,32 @@
       "required": ["caller", "skill_id", "inputs"],
       "additionalProperties": false
     },
+    "RetryHint": {
+      "type": "object",
+      "description": "重试建议",
+      "properties": {
+        "suggested_delay_ms": { "type": "number", "minimum": 0 },
+        "max_attempts": { "type": "number", "minimum": 0 }
+      },
+      "required": ["suggested_delay_ms", "max_attempts"],
+      "additionalProperties": false
+    },
     "InvocationResponse": {
       "type": "object",
       "description": "技能调用响应",
       "properties": {
-        "execution_id": { "type": "string", "description": "执行 ID" },
+        "execution_id": { "type": "string", "minLength": 1, "description": "执行 ID" },
         "status": { "$ref": "#/$defs/ExecutionStatus" },
-        "skill_id": { "type": "string", "description": "目标技能 ID" },
+        "skill_id": { "type": "string", "minLength": 1, "description": "目标技能 ID" },
         "output": { "description": "输出数据（status 为 completed 时）" },
         "error": {
           "type": "object",
           "description": "错误信息（status 为 failed 或 timeout 时）",
           "properties": {
-            "code": { "type": "string" },
+            "code": { "type": "string", "minLength": 1 },
             "message": { "type": "string" },
             "details": { "description": "错误详情" },
-            "retry": {
-              "type": "object",
-              "description": "超时时的重试建议",
-              "properties": {
-                "suggested_delay_ms": { "type": "number" },
-                "max_attempts": { "type": "number" }
-              },
-              "required": ["suggested_delay_ms", "max_attempts"],
-              "additionalProperties": false
-            }
+            "retry": { "$ref": "#/$defs/RetryHint" }
           },
           "required": ["code", "message"],
           "additionalProperties": false
@@ -279,15 +414,77 @@
           "type": "object",
           "description": "时间戳",
           "properties": {
-            "created_at": { "type": "string" },
-            "updated_at": { "type": "string" },
-            "completed_at": { "type": "string" }
+            "created_at": { "type": "string", "minLength": 1 },
+            "updated_at": { "type": "string", "minLength": 1 },
+            "completed_at": { "type": "string", "minLength": 1 }
           },
           "required": ["created_at", "updated_at"],
           "additionalProperties": false
         }
       },
       "required": ["execution_id", "status", "skill_id", "timestamps"],
+      "additionalProperties": false
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "description": "统一错误响应结构",
+      "properties": {
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": { "$ref": "#/$defs/ErrorCode" },
+            "message": { "type": "string" },
+            "details": {},
+            "retry": { "$ref": "#/$defs/RetryHint" }
+          },
+          "required": ["code", "message"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["error"],
+      "additionalProperties": false
+    },
+    "FayIdVerificationKey": {
+      "type": "object",
+      "description": "Ed25519 OKP 公钥条目",
+      "properties": {
+        "kid": {
+          "type": "string",
+          "pattern": "^(ifay_[a-z2-7]+|cofay_[a-z2-7]+|org_[a-z0-9-]+)#[A-Za-z0-9._-]+$"
+        },
+        "kty": { "type": "string", "const": "OKP" },
+        "crv": { "type": "string", "const": "Ed25519" },
+        "x": { "type": "string", "pattern": "^[A-Za-z0-9_-]{43}$" },
+        "revoked": { "type": "boolean" },
+        "expires_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+        }
+      },
+      "required": ["kid", "kty", "crv", "x"],
+      "additionalProperties": false
+    },
+    "FayIdWellKnownDocument": {
+      "type": "object",
+      "description": "同源 /.well-known/fayid 公钥锚定文档",
+      "properties": {
+        "fay_id": { "$ref": "#/$defs/ProviderFayID" },
+        "origin": { "type": "string", "minLength": 1 },
+        "also_known_as": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "keys": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/FayIdVerificationKey" }
+        },
+        "updated_at": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+        }
+      },
+      "required": ["fay_id", "origin", "keys", "updated_at"],
       "additionalProperties": false
     }
   }

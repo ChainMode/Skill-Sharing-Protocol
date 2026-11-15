@@ -1,9 +1,14 @@
-// Schema definition for Skill Sharing Protocol
+// Normative TypeScript Definitions for Skill Sharing Protocol (SSP) 1.0 (Edition 2025-10-25)
 
 /**
  * 能力类型枚举
  */
 export type CapabilityType = "plugin" | "api" | "knowledge" | "task";
+
+/**
+ * 执行协同模式（task 型人工协同技能采用异步轮询契约，不绑定任何货币结算）
+ */
+export type ExecutionMode = "automated" | "human_in_the_loop";
 
 /**
  * 访问控制策略
@@ -21,15 +26,64 @@ export type AuthType = "api_key" | "oauth2" | "custom" | "none";
 export type ExecutionStatus = "accepted" | "running" | "completed" | "failed" | "timeout";
 
 /**
+ * 调用方 Fay 类型（Fay = iFay + coFay）
+ */
+export type CallerType = "ifay" | "cofay";
+
+/**
+ * SSP 标准错误码
+ */
+export type SspErrorCode =
+  | "VALIDATION_ERROR"
+  | "AUTH_REQUIRED"
+  | "PERMISSION_DENIED"
+  | "SKILL_NOT_FOUND"
+  | "INVOCATION_TIMEOUT"
+  | "ENDPOINT_UNREACHABLE"
+  | "VERSION_INCOMPATIBLE";
+
+/**
+ * 技能提供者信息
+ */
+export interface ProviderInfo {
+  /** 提供者名称 */
+  name: string;
+  /** 提供者规范化 FayID（ifay_ / cofay_ / org_） */
+  fay_id?: string;
+  /** 提供者声明域名 Origin / URL */
+  url?: string;
+  /** 联系方式 */
+  contact?: string;
+}
+
+/**
+ * RFC 8785 JCS + RFC 7515/8037 Detached Ed25519 JWS 签名证明
+ */
+export interface SkillProof {
+  /** 固定签名算法 EdDSA (Ed25519) */
+  alg: "EdDSA";
+  /** 签发方 FayID 密钥标识（如 cofay_<base32>#key-1） */
+  kid: string;
+  /** 签发时间（ISO 8601 UTC） */
+  issued_at: string;
+  /** 过期时间（ISO 8601 UTC） */
+  expires_at: string;
+  /** Detached JWS 紧凑串 (<base64url(header)>..<base64url(signature)>) */
+  jws: string;
+}
+
+/**
  * 参数定义
  */
 export interface ParameterDefinition {
   name: string;
-  type: string;           // JSON Schema 类型
+  /** JSON Schema 类型 */
+  type: string;
   description: string;
   required: boolean;
   default?: unknown;
-  schema?: object;        // 嵌套 JSON Schema（可选，用于复杂类型）
+  /** 嵌套 JSON Schema（可选，用于复杂类型） */
+  schema?: Record<string, unknown>;
 }
 
 /**
@@ -40,13 +94,13 @@ export interface AuthConfig {
   description?: string;
   /** api_key 认证的 header 名称 */
   header?: string;
-  /** oauth2 认证的配置 */
+  /** oauth2 认证的配置（type === "oauth2" 时必需） */
   oauth2?: {
     authorization_url: string;
     token_url: string;
     scopes: Record<string, string>;
   };
-  /** 自定义认证的说明 */
+  /** 自定义认证的说明（type === "custom" 时必需） */
   custom?: {
     instructions: string;
     parameters: ParameterDefinition[];
@@ -59,10 +113,11 @@ export interface AuthConfig {
 export interface InvocationEndpoint {
   url: string;
   method: "GET" | "POST" | "PUT" | "DELETE";
-  content_type?: string;  // 默认 "application/json"
+  /** 默认 "application/json" */
+  content_type?: string;
   /** 状态查询端点模板，包含 {execution_id} 占位符 */
   status_url?: string;
-  /** 结果获取端点模板 */
+  /** 结果获取端点模板，包含 {execution_id} 占位符 */
   result_url?: string;
   timeout_ms?: number;
   retry?: {
@@ -75,24 +130,28 @@ export interface InvocationEndpoint {
  * 输出格式定义
  */
 export interface OutputDefinition {
-  content_type: string;   // MIME 类型
-  schema?: object;        // JSON Schema 描述输出结构
+  /** MIME 类型 */
+  content_type: string;
+  /** JSON Schema 描述输出结构 */
+  schema?: Record<string, unknown>;
   description?: string;
 }
 
 /**
- * 协议版本信息
+ * 协议版本信息（两段式 MAJOR.MINOR，如 "1.0"）
  */
 export interface ProtocolVersion {
-  version: string;        // SemVer 格式，如 "1.0.0"
-  changelog_url?: string; // 版本变更日志 URL
+  /** 两段式协议版本字符串 MAJOR.MINOR（严禁包含 PATCH 段） */
+  version: string;
+  /** 版本变更日志 URL */
+  changelog_url?: string;
 }
 
 /**
- * 技能描述符 - 协议核心数据结构
+ * 技能描述符 - SSP 核心数据结构
  */
 export interface SkillDescriptor {
-  /** 协议版本 */
+  /** 协议版本（两段式 MAJOR.MINOR） */
   protocol: ProtocolVersion;
 
   /** 技能唯一标识符 */
@@ -101,7 +160,7 @@ export interface SkillDescriptor {
   /** 技能名称 */
   name: string;
 
-  /** 技能版本（SemVer） */
+  /** 技能自身版本（SemVer 格式） */
   version: string;
 
   /** 能力类型 */
@@ -111,11 +170,7 @@ export interface SkillDescriptor {
   description: string;
 
   /** 技能提供者信息 */
-  provider: {
-    name: string;
-    url?: string;
-    contact?: string;
-  };
+  provider: ProviderInfo;
 
   /** 调用端点 */
   endpoint: InvocationEndpoint;
@@ -131,6 +186,12 @@ export interface SkillDescriptor {
 
   /** 访问控制策略 */
   access: AccessPolicy;
+
+  /** JCS + Ed25519 Detached JWS 签名证明（未签名描述符在消费者侧按 Default-Deny 标为 unverified） */
+  proof?: SkillProof;
+
+  /** 执行协同模式 */
+  execution_mode?: ExecutionMode;
 
   /** 标签（用于搜索和分类） */
   tags?: string[];
@@ -167,36 +228,38 @@ export interface SkillIndexEntry {
   /** 访问控制策略 */
   access: AccessPolicy;
 
-  /** 技能版本 */
+  /** 技能自身版本（SemVer） */
   version: string;
 }
 
 /**
- * 技能索引 - Well-Known URI 响应
+ * 技能索引 - Well-Known URI (/.well-known/skill-sharing) 响应
  */
 export interface SkillIndex {
   /** 协议版本 */
   protocol: ProtocolVersion;
 
   /** 提供者信息 */
-  provider: {
-    name: string;
-    url?: string;
-  };
+  provider: ProviderInfo;
 
   /** 技能列表 */
   skills: SkillIndexEntry[];
+
+  /** JCS + Ed25519 Detached JWS 签名证明 */
+  proof?: SkillProof;
 }
 
 /**
  * 技能调用请求
  */
 export interface InvocationRequest {
-  /** 调用者身份标识 */
+  /** 调用者身份标识（必须为规范化 FayID：ifay_<base32> 或 cofay_<base32>） */
   caller: {
     id: string;
-    type: string;         // 如 "ifay", "service", "user"
-    credentials?: object; // 认证凭据
+    type: CallerType;
+    organization_id?: string;
+    mandate_ref?: string;
+    credentials?: Record<string, unknown>;
   };
 
   /** 目标技能 ID */
@@ -205,12 +268,23 @@ export interface InvocationRequest {
   /** 输入参数 */
   inputs: Record<string, unknown>;
 
+  /** 可选 Faying Mandate 授权引用（归因至人类原型或归属组织） */
+  mandate_ref?: string;
+
   /** 调用上下文 */
   context?: {
     trace_id?: string;
     priority?: "low" | "normal" | "high";
     timeout_ms?: number;
   };
+}
+
+/**
+ * 重试建议
+ */
+export interface SchemaRetryHint {
+  suggested_delay_ms: number;
+  max_attempts: number;
 }
 
 /**
@@ -235,10 +309,7 @@ export interface InvocationResponse {
     message: string;
     details?: unknown;
     /** 超时时的重试建议 */
-    retry?: {
-      suggested_delay_ms: number;
-      max_attempts: number;
-    };
+    retry?: SchemaRetryHint;
   };
 
   /** 时间戳 */
@@ -247,4 +318,39 @@ export interface InvocationResponse {
     updated_at: string;
     completed_at?: string;
   };
+}
+
+/**
+ * 统一错误响应结构
+ */
+export interface SspErrorEnvelope {
+  error: {
+    code: SspErrorCode;
+    message: string;
+    details?: unknown;
+    retry?: SchemaRetryHint;
+  };
+}
+
+/**
+ * Ed25519 OKP 公钥条目（/.well-known/fayid）
+ */
+export interface FayIdVerificationKey {
+  kid: string;
+  kty: "OKP";
+  crv: "Ed25519";
+  x: string;
+  revoked?: boolean;
+  expires_at?: string;
+}
+
+/**
+ * 同源 /.well-known/fayid 公钥锚定文档
+ */
+export interface FayIdWellKnownDocument {
+  fay_id: string;
+  origin: string;
+  also_known_as?: string[];
+  keys: FayIdVerificationKey[];
+  updated_at: string;
 }

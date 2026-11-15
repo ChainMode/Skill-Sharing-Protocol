@@ -1,0 +1,18 @@
+{
+  "name": "skill-sharing-protocol",
+  "version": "0.1.0",
+  "description": "Skill Sharing Protocol - A decentralized skill discovery, declaration and invocation protocol",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.1",
+    "fast-check": "^4.1.1",
+    "ajv": "^8.17.1"
+  }
+}

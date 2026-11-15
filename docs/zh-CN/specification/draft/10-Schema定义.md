@@ -14,26 +14,30 @@
 
 ## 10.2 JSON Schema 基本结构
 
+权威冻结 Schema 位于 [`schemas/ssp-1.0.json`](../../../../schemas/ssp-1.0.json)，并与 [`schema/2025-10-25/schema.json`](../../../../schema/2025-10-25/schema.json) 及 [`schema/draft/schema.json`](../../../../schema/draft/schema.json) 保持严格同步；跨实现一致性测试向量位于 [`vectors/ssp-1.0-conformance.json`](../../../../vectors/ssp-1.0-conformance.json)。
+
 ```json
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://skill-sharing.org/schema/draft/schema.json",
-  "title": "Skill Sharing Protocol Schema",
+  "$id": "https://ifay.ai/schemas/ssp-1.0.json",
+  "title": "SkillDescriptor",
   "$defs": {
+    "ProtocolVersionString": { "type": "string", "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$" },
     "CapabilityType": { "enum": ["plugin", "api", "knowledge", "task"] },
     "AccessPolicy": { "enum": ["public", "restricted", "private"] },
-    "AuthType": { "enum": ["none", "api_key", "oauth2", "custom"] },
+    "AuthType": { "enum": ["api_key", "oauth2", "custom", "none"] },
     "ExecutionStatus": { "enum": ["accepted", "running", "completed", "failed", "timeout"] },
-    "ProtocolVersion": { "...": "..." },
-    "SkillDescriptor": { "...": "..." },
+    "SkillProof": { "...": "..." },
     "SkillIndex": { "...": "..." },
     "InvocationRequest": { "...": "..." },
-    "InvocationResponse": { "...": "..." }
+    "InvocationResponse": { "...": "..." },
+    "ErrorResponse": { "...": "..." },
+    "FayIdWellKnownDocument": { "...": "..." }
   }
 }
 ```
 
-完整定义见 [`schema/draft/schema.json`](../../../../schema/draft/schema.json)。
+完整定义见 [`schemas/ssp-1.0.json`](../../../../schemas/ssp-1.0.json)。
 
 ## 10.3 TypeScript 与 JSON Schema 一致性
 
