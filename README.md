@@ -43,4 +43,4 @@ npm run build
 
 ## License
 
-Released under the [LICENSE](./LICENSE) included in this repository.
+**MIT (Reference Implementations, Schemas & Test Vectors) / CC BY 4.0 (Specifications & Blueprints)** — Copyright (c) 2025-2026 ChainMode contributors. See [`LICENSE`](./LICENSE) and [`LICENSE-DOCS`](./LICENSE-DOCS).

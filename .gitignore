@@ -21,6 +21,10 @@
 # Allow essential project files
 !/README.md
 !/LICENSE
+!/LICENSE-DOCS
+!/SECURITY.md
+!/CONTRIBUTING.md
+!/CODE_OF_CONDUCT.md
 !/.gitignore
 
 # Never allow OS metadata or build artifacts inside whitelisted trees
