@@ -1,5 +1,10 @@
 # Skill Sharing Protocol (`ssp/1.0`)
 
+[![Docs CI](https://github.com/ChainMode/Skill-Sharing-Protocol/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/ChainMode/Skill-Sharing-Protocol/actions/workflows/docs-ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Docs: CC BY 4.0](https://img.shields.io/badge/Docs-CC%20BY%204.0-lightgrey.svg)](./LICENSE-DOCS)
+[![Website: ifay.ai](https://img.shields.io/badge/Website-ifay.ai-blue)](https://ifay.ai)
+
 **Skill Sharing Protocol (SSP)** is a decentralized, self-sovereign protocol for declaring, discovering, verifying, and invoking external capabilities (`plugin`, `api`, `knowledge`, `task`) across **Fay** entities (**iFay** personal companions and **coFay** organizational agents) on behalf of **Human Prime** (`人类原型`) or organizations.
 
 iFay and coFay instances can be continuously enhanced with knowledge bases, service APIs, plugins, and asynchronous human-in-the-loop tasks while preserving end-to-end cryptographic provenance and Default-Deny safety.

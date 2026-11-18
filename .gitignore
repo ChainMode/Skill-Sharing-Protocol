@@ -31,6 +31,12 @@
 !.github/workflows/
 .github/workflows/*
 !.github/workflows/docs-ci.yml
+!.github/ISSUE_TEMPLATE/
+.github/ISSUE_TEMPLATE/*
+!.github/ISSUE_TEMPLATE/bug_report.yml
+!.github/ISSUE_TEMPLATE/feature_request.yml
+!.github/ISSUE_TEMPLATE/config.yml
+!.github/pull_request_template.md
 
 # Never allow OS metadata or build artifacts inside whitelisted trees
 **/.DS_Store
