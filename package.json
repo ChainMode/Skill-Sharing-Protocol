@@ -4,8 +4,15 @@
   "description": "Skill Sharing Protocol - A decentralized skill discovery, declaration and invocation protocol",
   "type": "module",
   "license": "MIT",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "bin": {
+    "ssp-publisher": "./dist/src/ssp-publisher-cli.js",
+    "ssp-radar": "./dist/src/ssp-radar-cli.js"
+  },
   "scripts": {
     "build": "tsc",
+    "demo": "npm run build && node dist/src/ssp-publisher-cli.js demo",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"

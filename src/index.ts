@@ -5,4 +5,7 @@ export * from "./invocation.js";
 export * from "./crypto.js";
 export * from "./http-provider.js";
 export * from "./http-consumer.js";
+export * from "./publisher.js";
+export * from "./radar.js";
+export * from "./demo.js";
 export type * from "../schema/2025-10-25/schema.js";

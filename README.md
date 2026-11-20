@@ -33,17 +33,53 @@ iFay and coFay instances can be continuously enhanced with knowledge bases, serv
 | `src/http-consumer.ts` | Reference SSP 1.0 Consumer client (discovery, end-to-end JWS verification, Default-Deny gate, invocation & polling) |
 | `docs/{lang}/specification/` | Multilingual specification snapshots (`2025-10-25/`) and authoritative `zh-CN` draft chapters |
 
-## Verification & Testing
+## 30-Second Runnable Quickstart (`ssp-publisher` & `ssp-radar`)
 
 ```bash
-# Type-check TypeScript reference implementation and schema definitions
+# Spin up a live ephemeral HTTP server exposing MCP tools via /.well-known/skill-sharing
+# and discover, Ed25519 JWS-verify, and invoke them via ssp-radar
+npm run demo
+
+# Convert MCP tools/list or OpenAPI 3.x JSON into signed SSP 1.0 SkillDescriptors in 1 command
+npx ssp-publisher from-mcp --input ./mcp-tools.json --fay-id cofay_myorg234567abcdef --origin https://skills.example.com --out ./ssp-skills.json
+npx ssp-publisher from-openapi --input ./openapi.json --fay-id cofay_myorg234567abcdef --origin https://skills.example.com --out ./ssp-skills.json
+
+# Discover, JWS-verify, and invoke any remote /.well-known/skill-sharing origin
+npx ssp-radar https://skills.example.com --type api
+
+# Type-check & run the full 97-test verification suite
 npm run typecheck
-
-# Run unit tests, 18 conformance vectors, loopback HTTP e2e tests, and 11 fast-check property suites
 npm test
+```
 
-# Compile TypeScript build output
-npm run build
+## 3-Line Middleware & Bidirectional MCP Integration
+
+```ts
+import { createServer } from "node:http";
+import {
+  convertMcpToolsToSkillDescriptors,
+  createDeterministicSigner,
+  createSspWellKnownHandler,
+  runSspRadar,
+} from "skill-sharing-protocol";
+
+const signer = createDeterministicSigner("cofay_myservice234567ab");
+const skills = convertMcpToolsToSkillDescriptors(mcpToolsList, {
+  provider: { name: "Weather MCP", fay_id: "cofay_myservice234567ab", url: "https://api.example.com" },
+  signer,
+});
+
+// Mounts GET /.well-known/fayid, GET /.well-known/skill-sharing (?type= & private hiding),
+// GET /skills/:id, and POST /skills/:id/invoke on Node HTTP, Express, or Connect
+const sspMiddleware = createSspWellKnownHandler({
+  provider: { name: "Weather MCP", fay_id: "cofay_myservice234567ab", url: "https://api.example.com" },
+  skills,
+  signer,
+});
+createServer((req, res) => { void sspMiddleware(req, res); });
+
+// Consumer side: discover, verify Detached JWS, and invoke under Default-Deny gate
+const radar = await runSspRadar("https://api.example.com", { invokeSkillId: "weather_forecast", invokeInputs: { city: "Shanghai" } });
 ```
 
 ## License

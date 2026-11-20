@@ -9,7 +9,7 @@
  */
 
 import { Ajv2020, type ErrorObject } from "ajv/dist/2020.js";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { validateUniqueIds } from "./discovery.js";
@@ -119,7 +119,9 @@ function getValueAtPath(document: unknown, path: string): unknown {
 }
 
 function createAjvValidators() {
-  const schemaPath = resolve(__dirname, "..", "schemas", "ssp-1.0.json");
+  const directCandidate = resolve(__dirname, "..", "schemas", "ssp-1.0.json");
+  const distCandidate = resolve(__dirname, "..", "..", "schemas", "ssp-1.0.json");
+  const schemaPath = existsSync(directCandidate) ? directCandidate : distCandidate;
   const schemaContent = readFileSync(schemaPath, "utf-8");
   const schema = JSON.parse(schemaContent);
 

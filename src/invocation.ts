@@ -8,7 +8,7 @@
  */
 
 import { Ajv2020 } from "ajv/dist/2020.js";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { mapAjvError, type ValidationResult, type ValidationError } from "./validator.js";
@@ -49,7 +49,9 @@ export interface ErrorResponse {
 }
 
 function loadSchema() {
-  const schemaPath = resolve(__dirname, "..", "schemas", "ssp-1.0.json");
+  const directCandidate = resolve(__dirname, "..", "schemas", "ssp-1.0.json");
+  const distCandidate = resolve(__dirname, "..", "..", "schemas", "ssp-1.0.json");
+  const schemaPath = existsSync(directCandidate) ? directCandidate : distCandidate;
   const schemaContent = readFileSync(schemaPath, "utf-8");
   return JSON.parse(schemaContent);
 }
