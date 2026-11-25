@@ -1,6 +1,6 @@
 {
   "name": "skill-sharing-protocol",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "Skill Sharing Protocol - A decentralized skill discovery, declaration and invocation protocol",
   "type": "module",
   "license": "MIT",

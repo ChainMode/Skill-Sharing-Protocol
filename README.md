@@ -9,6 +9,8 @@
 
 iFay and coFay instances can be continuously enhanced with knowledge bases, service APIs, plugins, and asynchronous human-in-the-loop tasks while preserving end-to-end cryptographic provenance and Default-Deny safety.
 
+> **Version & Distribution Alignment**: Normative Wire Protocol = **`ssp/1.0` (`2025-10-25`)** · Reference Implementation (`ssp-publisher` & `ssp-radar`) Release = **[`v1.1.0`](https://github.com/ChainMode/Skill-Sharing-Protocol/releases/tag/v1.1.0)** (`package.json` `1.1.0`, distributed via GitHub Release / source).
+
 ## Key Capabilities in SSP 1.0 (Edition `2025-10-25`)
 
 - **Two-Segment Protocol Versioning (`ssp/1.0`)**: Wire protocol versions use `MAJOR.MINOR` (`"1.0"`, token `ssp/1.0`) with stateless same-`MAJOR` compatibility (`descriptor.major === consumer.major`) and optional `SSP-Supported-Versions` HTTP header advertisement. Individual skill implementation versions (`SkillDescriptor.version`) remain independent SemVer strings.
